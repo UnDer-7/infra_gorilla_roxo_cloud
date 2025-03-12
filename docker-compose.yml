@@ -1,0 +1,34 @@
+name: gorilla-roxo-cloud-stack
+
+services:
+  caddy:
+    image: caddy:2.9.1-alpine
+    container_name: caddy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+      - "2019:2019"
+    volumes:
+      - ./config/caddy/Caddyfile:/etc/caddy/Caddyfile
+      - ./config/caddy/site:/srv
+      - ./.docker_volume/caddy/data:/data
+      - ./.docker_volume/caddy/config:/config
+    networks:
+      - gorilla-roxo-cloud-network
+
+  uptime-kuma:
+    image: louislam/uptime-kuma:1.23.16
+    container_name: uptime-kuma
+    restart: unless-stopped
+    volumes:
+      - ./.docker_volume/uptime-kuma:/app/data
+    ports:
+      - "3001:3001"
+    networks:
+      - gorilla-roxo-cloud-network
+
+networks:
+  gorilla-roxo-cloud-network:
+    external: true
