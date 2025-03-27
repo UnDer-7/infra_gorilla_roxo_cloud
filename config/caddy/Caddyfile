@@ -46,7 +46,7 @@ kuma.cloud.gorillaroxo.com.br {
 ########### NTFY ###########
 ############################
 ntfy.cloud.gorillaroxo.com.br {
-	reverse_proxy ntfy:8080
+	reverse_proxy ntfy:80
 	import log_settings
 	import security_headers
 }
