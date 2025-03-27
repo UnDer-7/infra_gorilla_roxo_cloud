@@ -51,6 +51,70 @@ services:
     networks:
       - gorilla-roxo-cloud-network
 
+  redis:
+    image: redis:6-alpine
+    container_name: redis
+    # restart policy to make sure the container is restarted automatically when your machine is rebooted
+    restart: unless-stopped
+    volumes:
+      - ./.docker_volume/redis:/data
+    healthcheck:
+      test: [ 'CMD', 'redis-cli', 'ping' ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - gorilla-roxo-cloud-network
+
+  postgres:
+    image: postgres:17-alpine
+    container_name: postgres
+    # restart policy to make sure the container is restarted automatically when your machine is rebooted
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      # ADM
+      POSTGRES_USER: ${POSTGRES_ADM_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_ADM_PASSWORD}
+      POSTGRES_DB: postgres
+    volumes:
+      - ./.docker_volume/postgres:/var/lib/postgresql/data
+      - ./config/postgres/init-data.sh:/docker-entrypoint-initdb.d/init-data.sh
+    healthcheck:
+      test: [ 'CMD-SHELL', 'pg_isready -h localhost -U ${POSTGRES_ADM_USER} -d postgres' ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - gorilla-roxo-cloud-network
+
+  odoo:
+    image: odoo:18.0
+    container_name: odoo
+    # restart policy to make sure the container is restarted automatically when your machine is rebooted
+    restart: unless-stopped
+    ports:
+      - "8069:8069"
+    volumes:
+      - ./.docker_volume/odoo:/var/lib/odoo
+      - ./config/odoo/config:/etc/odoo
+      - ./config/odoo/extra_addons:/mnt/extra-addons
+    environment:
+      HOST: ${ODOO_POSTGRES_HOST}
+      USER: ${POSTGRES_ADM_USER}
+      PASSWORD: ${POSTGRES_ADM_PASSWORD}
+    links:
+      - postgres
+      - redis
+    depends_on:
+      redis:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+    networks:
+      - gorilla-roxo-cloud-network
+
 networks:
   gorilla-roxo-cloud-network:
     external: true

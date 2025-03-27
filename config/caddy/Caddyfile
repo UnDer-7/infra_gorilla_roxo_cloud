@@ -37,7 +37,7 @@
 ####### Uptime Kuma ########
 ############################
 kuma.cloud.gorillaroxo.com.br {
-	reverse_proxy 5.161.210.122:3001
+	reverse_proxy uptime-kuma:3001
 	import log_settings
 	import security_headers
 }
@@ -46,7 +46,16 @@ kuma.cloud.gorillaroxo.com.br {
 ########### NTFY ###########
 ############################
 ntfy.cloud.gorillaroxo.com.br {
-	reverse_proxy 5.161.210.122:8080
+	reverse_proxy ntfy:8080
+	import log_settings
+	import security_headers
+}
+
+############################
+########### Odoo ###########
+############################
+odoo.cloud.gorillaroxo.com.br {
+	reverse_proxy odoo:8069
 	import log_settings
 	import security_headers
 }

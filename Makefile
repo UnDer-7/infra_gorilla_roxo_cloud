@@ -68,6 +68,11 @@ docker/kill/all: confirm
 	ELAPSED=$$((END-START)); \
 	echo "Finished Stopping and Removing ALL containers in $$((ELAPSED/3600))h $$(((ELAPSED%3600)/60))m $$((ELAPSED%60))s"
 
+## setup/folders: Create all the necessary folder and permissions for the containers to work
+.PHONY: setup/folders
+setup/folders:
+	@$(MAKE) --no-print-directory create/folder FOLDER_NAME=odoo UID=100 GID=101
+
 
 
 
@@ -75,6 +80,16 @@ docker/kill/all: confirm
 # ==================================================================================== #
 # ===== INTERNAL TARGETS =====
 # ==================================================================================== #
+# Create a folder in the .docker_volume folder with the given ID
+.PHONY: create/folder
+create/folder:
+	@DIR_PATH=$(shell pwd)/.docker_volume/$(FOLDER_NAME); \
+	echo "Setting up folder: $$DIR_PATH with UID: $(UID) and GID: $(GID)"; \
+	sudo mkdir -p $$DIR_PATH; \
+	sudo chown -R $(UID):$(GID) $$DIR_PATH; \
+	sudo chmod -R 770 $$DIR_PATH; \
+	sudo chmod g+s $$DIR_PATH
+
 # Ask for user confirmation before running
 # in a target that uses this confirm you call with confirm=y to skip the prompt
 .PHONY: confirm
